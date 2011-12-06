@@ -2,6 +2,7 @@ package gate.creole.semtagger;
 
 import gate.ProcessingResource;
 import gate.Resource;
+import gate.annotation.AnnotationImpl;
 import gate.creole.AbstractLanguageAnalyser;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
