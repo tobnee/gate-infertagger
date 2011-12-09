@@ -1,9 +1,9 @@
 package gate.creole.semtagger.rulemodel;
 
-import gate.Annotation;
+import gate.annotation.AnnotationImpl;
 
 public class Token extends AnnotationDelegate {
-	Token(Annotation anno) {
+	Token(AnnotationImpl anno) {
 		super(anno);
 	}
 

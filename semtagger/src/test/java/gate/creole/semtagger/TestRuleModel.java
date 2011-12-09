@@ -6,6 +6,7 @@ import gate.AnnotationSet;
 import gate.Document;
 import gate.Factory;
 import gate.FeatureMap;
+import gate.annotation.AnnotationImpl;
 import gate.annotation.AnnotationSetImpl;
 import gate.annotation.DefaultAnnotationFactory;
 import gate.annotation.NodeImpl;
@@ -13,7 +14,7 @@ import gate.corpora.DocumentImpl;
 import gate.creole.semtagger.rulemodel.RuleModelFactory;
 import gate.creole.semtagger.rulemodel.Sentence;
 import gate.creole.semtagger.rulemodel.Token;
-import gate.util.GateException;
+import gate.creole.semtagger.rulemodel.Word;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,19 +22,13 @@ import org.junit.Test;
 public class TestRuleModel {
 	private DefaultAnnotationFactory annoFac;
 	private AnnotationSet annoSet;
+	private Annotation annoSen;
+	private Annotation annoTok;
+	private Annotation annoTok2;
 	
 	@Test
 	public void testToken() {
-		FeatureMap t1Fm = Factory.newFeatureMap();
-		t1Fm.put("string", "Token");
-		t1Fm.put("root", "token");
-		t1Fm.put("category", "NN");
-		t1Fm.put("orth", "upperInitial");
-
-		Annotation anno =
-			annoFac.createAnnotationInSet(annoSet, 0, new NodeImpl(0, 0l), new NodeImpl(1, 6l), 
-				"Token", t1Fm);
-		Token t1 = RuleModelFactory.fromToken(anno);
+		Token t1 = RuleModelFactory.fromToken((AnnotationImpl) annoTok);
 		assertNotNull(t1);
 		
 		assertEquals(0, t1.getStartOffset());
@@ -45,16 +40,27 @@ public class TestRuleModel {
 		
 		assertEquals("", t1.getFeature("noneExsisting"));
 		assertEquals("default", t1.getFeatureOrDefault("noneExsisting", "default"));
+
+		Word w1 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok);
+		Word w2 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok2);
+		assertTrue(w2.after(w1));
+		assertTrue(w1.before(w2));
+		
+		assertNotNull(w1);
 	}
+	
 	@Test
 	public void testSentence() {
-		Sentence sentence = new Sentence();
+		Token t1 = RuleModelFactory.fromToken((AnnotationImpl) annoTok);
+		Sentence sentence = RuleModelFactory.fromSentence((AnnotationImpl) annoSen);
 		assertNotNull(sentence);
+		assertTrue(sentence.overlaps(t1));
+		assertTrue(t1.overlaps(sentence));
+		assertTrue(sentence.containsToken(t1));
 	}
+	
 	@Test
 	public void testLookup() {
-		Sentence sentence = new Sentence();
-		assertNotNull(sentence);
 	}
 	
 	@Before
@@ -62,5 +68,26 @@ public class TestRuleModel {
 		Document document = new DocumentImpl();
 		annoSet = new AnnotationSetImpl(document);
 		annoFac = new DefaultAnnotationFactory();
+		FeatureMap t1Fm = Factory.newFeatureMap();
+		annoSen = annoFac.createAnnotationInSet(annoSet, 9, new NodeImpl(0, 0l), new NodeImpl(9, 25l), 
+			"Sentence", t1Fm);
+
+		FeatureMap t1Tok = Factory.newFeatureMap();
+		t1Tok.put("string", "Token");
+		t1Tok.put("root", "token");
+		t1Tok.put("category", "NN");
+		t1Tok.put("orth", "upperInitial");
+		t1Tok.put("kind", "word");
+
+		annoTok = annoFac.createAnnotationInSet(annoSet, 0, new NodeImpl(0, 0l), new NodeImpl(1, 6l), 
+			"Token", t1Tok);
+		
+		FeatureMap t2Tok = Factory.newFeatureMap();
+		t2Tok.put("string", "super");
+		t2Tok.put("root", "super");
+		t2Tok.put("category", "NN");
+		t2Tok.put("kind", "word");		
+		annoTok2 = annoFac.createAnnotationInSet(annoSet, 0, new NodeImpl(0, 7l), new NodeImpl(1, 12l), 
+				"Token", t2Tok);
 	}
 }

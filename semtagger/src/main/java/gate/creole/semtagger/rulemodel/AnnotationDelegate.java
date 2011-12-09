@@ -1,11 +1,11 @@
 package gate.creole.semtagger.rulemodel;
 
-import gate.Annotation;
+import gate.annotation.AnnotationImpl;
 
 public class AnnotationDelegate {
-	protected final Annotation anno;
+	protected final AnnotationImpl anno;
 
-	public AnnotationDelegate(Annotation anno) {
+	public AnnotationDelegate(AnnotationImpl anno) {
 		this.anno = anno;
 	}
 
@@ -25,5 +25,8 @@ public class AnnotationDelegate {
 	public String getFeature(String string) {
 		return getFeatureOrDefault(string, "");
 	}
-
+	
+	public boolean overlaps(AnnotationDelegate delegate) {
+		return this.anno.overlaps(delegate.anno);
+	}
 }
