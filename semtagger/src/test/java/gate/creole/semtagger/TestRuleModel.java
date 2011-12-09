@@ -11,6 +11,7 @@ import gate.annotation.AnnotationSetImpl;
 import gate.annotation.DefaultAnnotationFactory;
 import gate.annotation.NodeImpl;
 import gate.corpora.DocumentImpl;
+import gate.creole.semtagger.rulemodel.AnnotationDelegate;
 import gate.creole.semtagger.rulemodel.RuleModelFactory;
 import gate.creole.semtagger.rulemodel.Sentence;
 import gate.creole.semtagger.rulemodel.Token;
@@ -42,7 +43,7 @@ public class TestRuleModel {
 		assertEquals("default", t1.getFeatureOrDefault("noneExsisting", "default"));
 
 		Word w1 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok);
-		Word w2 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok2);
+		AnnotationDelegate w2 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok2);
 		assertTrue(w2.after(w1));
 		assertTrue(w1.before(w2));
 		

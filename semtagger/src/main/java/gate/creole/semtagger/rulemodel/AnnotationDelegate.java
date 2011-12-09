@@ -29,4 +29,12 @@ public class AnnotationDelegate {
 	public boolean overlaps(AnnotationDelegate delegate) {
 		return this.anno.overlaps(delegate.anno);
 	}
+
+	public boolean after(AnnotationDelegate w1) {
+		return this.anno.getEndNode().getOffset()>w1.anno.getStartNode().getOffset();
+	}
+
+	public boolean before(AnnotationDelegate w1) {
+		return !after(w1);
+	}
 }
