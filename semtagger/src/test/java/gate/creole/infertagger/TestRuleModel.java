@@ -1,4 +1,4 @@
-package gate.creole.semtagger;
+package gate.creole.infertagger;
 
 import static org.junit.Assert.*;
 import gate.Annotation;
@@ -11,11 +11,11 @@ import gate.annotation.AnnotationSetImpl;
 import gate.annotation.DefaultAnnotationFactory;
 import gate.annotation.NodeImpl;
 import gate.corpora.DocumentImpl;
-import gate.creole.semtagger.rulemodel.AnnotationDelegate;
-import gate.creole.semtagger.rulemodel.RuleModelFactory;
-import gate.creole.semtagger.rulemodel.Sentence;
-import gate.creole.semtagger.rulemodel.Token;
-import gate.creole.semtagger.rulemodel.Word;
+import gate.creole.infertagger.rulemodel.AnnotationDelegate;
+import gate.creole.infertagger.rulemodel.RuleModelFactory;
+import gate.creole.infertagger.rulemodel.Sentence;
+import gate.creole.infertagger.rulemodel.Token;
+import gate.creole.infertagger.rulemodel.Word;
 
 import org.junit.Before;
 import org.junit.Test;

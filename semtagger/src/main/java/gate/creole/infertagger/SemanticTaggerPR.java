@@ -1,4 +1,4 @@
-package gate.creole.semtagger;
+package gate.creole.infertagger;
 
 import gate.ProcessingResource;
 import gate.Resource;

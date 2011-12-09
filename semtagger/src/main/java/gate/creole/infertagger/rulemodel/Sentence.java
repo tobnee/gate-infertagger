@@ -1,4 +1,4 @@
-package gate.creole.semtagger.rulemodel;
+package gate.creole.infertagger.rulemodel;
 
 import gate.annotation.AnnotationImpl;
 
