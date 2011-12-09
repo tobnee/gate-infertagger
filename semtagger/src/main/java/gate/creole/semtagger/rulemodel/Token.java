@@ -1,12 +1,21 @@
 package gate.creole.semtagger.rulemodel;
 
-public class Token {
-	public final String string, root, category;
-	
-	public Token(String string, String root, String category) {
-		this.string = string;
-		this.root = root;
-		this.category = category;
+import gate.Annotation;
+
+public class Token extends AnnotationDelegate {
+	Token(Annotation anno) {
+		super(anno);
 	}
 
+	public String getString() {
+		return getFeature("string");
+	}
+
+	public String getRoot() {
+		return getFeature("root");
+	}
+	
+	public String getCategory() {
+		return getFeature("category");
+	}
 }
