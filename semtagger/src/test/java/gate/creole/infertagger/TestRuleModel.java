@@ -52,7 +52,8 @@ public class TestRuleModel {
 		assertNotNull(sentence);
 		assertTrue(sentence.overlaps(t1));
 		assertTrue(t1.overlaps(sentence));
-		assertTrue(sentence.containsToken(t1));
+		assertTrue(sentence.contains(t1));
+		assertTrue(t1.within(sentence));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -62,10 +63,12 @@ public class TestRuleModel {
 	
 	@Test
 	public void testLookup() {
+		Sentence sen = RuleModelFactory.fromSentence((AnnotationImpl) annoSen);
 		Lookup look = RuleModelFactory.fromLookup((AnnotationImpl) annoLook);
 		assertNotNull(look);
+		look.within(sen);
 	}
-
+	
 	private DefaultAnnotationFactory annoFac;
 	private AnnotationSet annoSet;
 	private Annotation annoSen;

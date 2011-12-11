@@ -26,19 +26,24 @@ public class AnnotationDelegate {
 		return getFeatureOrDefault(string, "");
 	}
 	
-	public boolean overlaps(AnnotationDelegate delegate) {
-		return this.anno.overlaps(delegate.anno);
+	public boolean overlaps(AnnotationDelegate that) {
+		return that==null ? false : this.anno.overlaps(that.anno);
 	}
 
-	public boolean after(AnnotationDelegate w1) {
-		return this.anno.getEndNode().getOffset()>w1.anno.getStartNode().getOffset();
+	public boolean after(AnnotationDelegate that) {
+		return that==null ? false : 
+			this.anno.getEndNode().getOffset()>that.anno.getStartNode().getOffset();
 	}
 
-	public boolean before(AnnotationDelegate w1) {
-		return !after(w1);
+	public boolean before(AnnotationDelegate that) {
+		return !after(that);
 	}
 	
-	public boolean inside(AnnotationDelegate d) {
-		return d.anno.withinSpanOf(anno);
+	public boolean contains(AnnotationDelegate that) {
+		return that==null ? false : that.anno.withinSpanOf(anno);
+	}
+	
+	public boolean within(AnnotationDelegate that) {
+		return that==null ? false : this.anno.withinSpanOf(that.anno);
 	}
 }

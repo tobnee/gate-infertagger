@@ -7,8 +7,4 @@ public class Sentence extends AnnotationDelegate {
 	public Sentence(AnnotationImpl anno) {
 		super(anno);
 	}
-
-	public boolean containsToken(Token t1) {
-		return inside(t1);
-	}
 }
