@@ -42,5 +42,4 @@ public class RuleModelFactory {
 	private static void wrongAnnotation(Annotation anno, String string) {
 		throw new IllegalArgumentException(string +" "+anno);
 	}
-
 }
