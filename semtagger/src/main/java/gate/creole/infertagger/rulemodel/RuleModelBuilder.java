@@ -15,6 +15,8 @@ public class RuleModelBuilder {
 	}
 
 	public List<Object> build() {
+		//TODO: add registration possibility for annotation transformer
+		// which can be selected based on user preferences 
 		List<Object> obs = new ArrayList<Object>(annoSet.size());
 		AnnotationSet set = annoSet.get("Token");
 		for(Annotation a : set) {			
@@ -32,5 +34,4 @@ public class RuleModelBuilder {
 		}
 		return obs;
 	}
-
 }
