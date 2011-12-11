@@ -9,7 +9,6 @@ public class Sentence extends AnnotationDelegate {
 	}
 
 	public boolean containsToken(Token t1) {
-		return overlaps(t1);
+		return inside(t1);
 	}
-
 }

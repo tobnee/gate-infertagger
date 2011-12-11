@@ -37,4 +37,8 @@ public class AnnotationDelegate {
 	public boolean before(AnnotationDelegate w1) {
 		return !after(w1);
 	}
+	
+	public boolean inside(AnnotationDelegate d) {
+		return d.anno.withinSpanOf(anno);
+	}
 }

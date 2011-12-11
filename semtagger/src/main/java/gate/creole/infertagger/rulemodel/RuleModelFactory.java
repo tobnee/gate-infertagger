@@ -13,6 +13,11 @@ public class RuleModelFactory {
 		checkTypeOrThrowException(anno, "Sentence");
 		return new Sentence(anno);
 	}
+	
+	public static Lookup fromLookup(AnnotationImpl annoLook) {
+		checkTypeOrThrowException(annoLook, "Lookup");
+		return new Lookup(annoLook);
+	}
 
 	public static Word fromWordToken(AnnotationImpl anno) {
 		checkTypeOrThrowException(anno, "Token");
@@ -37,4 +42,5 @@ public class RuleModelFactory {
 	private static void wrongAnnotation(Annotation anno, String string) {
 		throw new IllegalArgumentException(string +" "+anno);
 	}
+
 }

@@ -11,7 +11,7 @@ import gate.annotation.AnnotationSetImpl;
 import gate.annotation.DefaultAnnotationFactory;
 import gate.annotation.NodeImpl;
 import gate.corpora.DocumentImpl;
-import gate.creole.infertagger.rulemodel.AnnotationDelegate;
+import gate.creole.infertagger.rulemodel.Lookup;
 import gate.creole.infertagger.rulemodel.RuleModelFactory;
 import gate.creole.infertagger.rulemodel.Sentence;
 import gate.creole.infertagger.rulemodel.Token;
@@ -21,11 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestRuleModel {
-	private DefaultAnnotationFactory annoFac;
-	private AnnotationSet annoSet;
-	private Annotation annoSen;
-	private Annotation annoTok;
-	private Annotation annoTok2;
 	
 	@Test
 	public void testToken() {
@@ -43,7 +38,7 @@ public class TestRuleModel {
 		assertEquals("default", t1.getFeatureOrDefault("noneExsisting", "default"));
 
 		Word w1 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok);
-		AnnotationDelegate w2 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok2);
+		Token w2 = RuleModelFactory.fromWordToken((AnnotationImpl) annoTok2);
 		assertTrue(w2.after(w1));
 		assertTrue(w1.before(w2));
 		
@@ -60,9 +55,23 @@ public class TestRuleModel {
 		assertTrue(sentence.containsToken(t1));
 	}
 	
+	@Test(expected=IllegalArgumentException.class)
+	public void testWrongTypeException() {
+		RuleModelFactory.fromToken((AnnotationImpl) annoSen);
+	}
+	
 	@Test
 	public void testLookup() {
+		Lookup look = RuleModelFactory.fromLookup((AnnotationImpl) annoLook);
+		assertNotNull(look);
 	}
+
+	private DefaultAnnotationFactory annoFac;
+	private AnnotationSet annoSet;
+	private Annotation annoSen;
+	private Annotation annoTok;
+	private Annotation annoTok2;
+	private Annotation annoLook;
 	
 	@Before
 	public void before() {
@@ -90,5 +99,9 @@ public class TestRuleModel {
 		t2Tok.put("kind", "word");		
 		annoTok2 = annoFac.createAnnotationInSet(annoSet, 0, new NodeImpl(0, 7l), new NodeImpl(1, 12l), 
 				"Token", t2Tok);
+		
+		FeatureMap tok = Factory.newFeatureMap();
+		annoLook = annoFac.createAnnotationInSet(annoSet, 0, new NodeImpl(0, 7l), new NodeImpl(1, 12l), 
+				"Lookup", tok);
 	}
 }
