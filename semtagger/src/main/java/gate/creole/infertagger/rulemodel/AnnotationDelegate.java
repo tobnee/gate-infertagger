@@ -46,4 +46,23 @@ public class AnnotationDelegate {
 	public boolean within(AnnotationDelegate that) {
 		return that==null ? false : this.anno.withinSpanOf(that.anno);
 	}
+	
+	@Override
+	public String toString() {
+		return anno.toString();
+	}
+	
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) return false;
+		if(obj instanceof AnnotationDelegate) {
+			return super.equals(((AnnotationDelegate) obj).anno);
+		} 
+		return false;
+	}
 }
