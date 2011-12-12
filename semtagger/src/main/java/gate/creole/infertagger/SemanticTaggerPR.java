@@ -35,7 +35,6 @@ public class SemanticTaggerPR extends AbstractLanguageAnalyser implements Proces
 	
 	@Override
 	public Resource init() throws ResourceInstantiationException {
-		super.init();
     	File ruleSetFile = Files.fileFromURL(ruleSet);
     	knowledgeBase = DroolsKnowledgeBaseFactory.initKnowledgeBase(ruleSetFile);
     	return this;

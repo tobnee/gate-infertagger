@@ -1,0 +1,9 @@
+import gate.creole.infertagger.rulemodel.*;
+
+rule "abc"
+    dialect "mvel"
+    when
+    	$l : Lookup()
+    then
+		System.out.println($l)
+end
