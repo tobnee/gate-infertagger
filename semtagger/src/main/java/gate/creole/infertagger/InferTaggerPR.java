@@ -25,7 +25,7 @@ import org.drools.KnowledgeBase;
  */
 @CreoleResource(name = "InferTagger", 
 		comment = "A inference system for GATE based on JBoss Drools expert") 
-public class SemanticTaggerPR extends AbstractLanguageAnalyser implements ProcessingResource
+public class InferTaggerPR extends AbstractLanguageAnalyser implements ProcessingResource
 {
 	private static final long serialVersionUID = 208364328022562584L;
     

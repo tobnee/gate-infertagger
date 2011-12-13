@@ -10,7 +10,7 @@ public class TestRuleModelUsage {
 
 	@Test
 	public void testDefault() throws ResourceInstantiationException, ExecutionException {
-		SemanticTaggerPR semTagger = new SemanticTaggerPR();
+		InferTaggerPR semTagger = new InferTaggerPR();
 		semTagger.setDocument(TestDataUtil.getTestCourpus());
 		semTagger.setRuleSet(TestRuleModelUsage.class.getClassLoader().
 				getResource("rules/defaulChangeSet.xml"));
