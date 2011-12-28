@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 public class TestRuleModelUsage {
 
 	@Test
-	public void testDefault() throws ResourceInstantiationException, ExecutionException {
+	public void testMarkerCreation() throws ResourceInstantiationException, ExecutionException {
 		InferTaggerPR semTagger = new InferTaggerPR();
 		semTagger.setDocument(TestDataUtil.getTestCourpus());
 		semTagger.setRuleSet(TestRuleModelUsage.class.getClassLoader().
