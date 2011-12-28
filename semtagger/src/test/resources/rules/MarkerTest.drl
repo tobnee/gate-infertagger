@@ -3,7 +3,8 @@ import gate.creole.infertagger.rulemodel.*;
 rule "abc"
     dialect "mvel"
     when
-    	$l : Lookup()
+    	$t : Token(string == "super")
     then
-		System.out.println($l)
+    	Marker m = Marker.mark($t, "Mark")
+    	insert(m)
 end

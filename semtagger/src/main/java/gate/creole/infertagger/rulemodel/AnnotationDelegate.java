@@ -3,7 +3,7 @@ package gate.creole.infertagger.rulemodel;
 import gate.annotation.AnnotationImpl;
 
 public class AnnotationDelegate {
-	protected final AnnotationImpl anno;
+	public final AnnotationImpl anno;
 
 	public AnnotationDelegate(AnnotationImpl anno) {
 		this.anno = anno;

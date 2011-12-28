@@ -1,5 +1,7 @@
 package gate.creole.infertagger;
 
+import gate.AnnotationSet;
+import gate.Factory;
 import gate.ProcessingResource;
 import gate.Resource;
 import gate.creole.AbstractLanguageAnalyser;
@@ -7,6 +9,7 @@ import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.infertagger.drools.DroolsKnowledgeBaseFactory;
 import gate.creole.infertagger.drools.RuleProcessor;
+import gate.creole.infertagger.rulemodel.Marker;
 import gate.creole.infertagger.rulemodel.RuleModelBuilder;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
@@ -46,7 +49,17 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     	List<Object> rulemodel = rmb.build();
     	RuleProcessor rp = new RuleProcessor(knowledgeBase);
     	Collection<Object> result = rp.assertAnnotations(rulemodel);
-    	logger.info(result);
+    	for (Object object : result) {
+			if(object instanceof Marker) {
+				logger.info("Marker found "+object);
+				Marker marker = (Marker) object;
+				AnnotationSet type = document.getAnnotations(marker.getType());
+				type.add(marker.getTarget().anno.getStartNode(), 
+						marker.getTarget().anno.getEndNode(), marker.getType(), 
+						Factory.newFeatureMap());
+			}
+		}
+       	logger.info(result);
     }
     
     @CreoleParameter(comment = "path to Drools changeSet")

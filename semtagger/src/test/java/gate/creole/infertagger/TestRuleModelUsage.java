@@ -1,10 +1,13 @@
 package gate.creole.infertagger;
 
+import org.junit.Test;
+
+import gate.Document;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.infertagger.testdata.TestDataUtil;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class TestRuleModelUsage {
 
@@ -16,5 +19,7 @@ public class TestRuleModelUsage {
 				getResource("rules/defaulChangeSet.xml"));
 		semTagger.init();
 		semTagger.execute();
+		Document doc = semTagger.getDocument();
+		assertEquals(1, doc.getAnnotations("Mark").size());
 	}
 }
