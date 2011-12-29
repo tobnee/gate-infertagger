@@ -1,10 +1,12 @@
 import gate.creole.infertagger.rulemodel.*;
+import java.util.*
 
-rule "abc"
+rule "Marker test"
     dialect "mvel"
     when
     	$t : Token(string == "super")
     then
-    	Marker m = Marker.mark($t, "Mark")
-    	insert(m)
+    	Map map = new HashMap()
+    	map.put("feature", "good")
+    	insert(Marker.mark($t, "Mark", map))
 end
