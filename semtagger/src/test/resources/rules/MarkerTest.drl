@@ -8,5 +8,5 @@ rule "Marker test"
     then
     	Map map = new HashMap()
     	map.put("feature", "good")
-    	insert(Marker.mark($t, "Mark", map))
+    	insert(MarkerUtil.mark($t, "Mark", map))
 end

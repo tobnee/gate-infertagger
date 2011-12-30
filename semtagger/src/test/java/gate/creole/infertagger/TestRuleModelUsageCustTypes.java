@@ -1,18 +1,16 @@
 package gate.creole.infertagger;
 
-import org.junit.Before;
-import org.junit.Test;
-
+import static org.junit.Assert.assertEquals;
 import gate.AnnotationSet;
 import gate.Document;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.infertagger.testdata.TestDataUtil;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestRuleModelUsage {
-
+public class TestRuleModelUsageCustTypes {
 	private Document doc;
 
 	@Test
@@ -31,8 +29,8 @@ public class TestRuleModelUsage {
 	public void buildKb() throws ExecutionException, ResourceInstantiationException {
 		InferTaggerPR semTagger = new InferTaggerPR();
 		semTagger.setDocument(TestDataUtil.getTestCourpus());
-		semTagger.setRuleSet(TestRuleModelUsage.class.getClassLoader().
-				getResource("rules/defaulChangeSet.xml"));
+		semTagger.setRuleSet(TestRuleModelUsageDirect.class.getClassLoader().
+				getResource("rules/custTypeMarker.xml"));
 		semTagger.init();
 		semTagger.execute();
 		doc = semTagger.getDocument();

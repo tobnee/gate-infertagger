@@ -1,0 +1,18 @@
+package gate.creole.infertagger.test
+
+import gate.creole.infertagger.rulemodel.*;
+import java.util.*
+
+declare MyMarker
+	@Marker("Mark")	
+	feature : String @Feature
+	anno : AnnotationDelegate @Annotation
+end	
+
+rule "Marker test"
+    dialect "mvel"
+    when
+    	$t : Token(string == "super")
+    then
+    	insert(new MyMarker("good", $t))
+end
