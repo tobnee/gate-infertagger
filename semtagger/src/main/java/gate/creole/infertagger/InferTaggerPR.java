@@ -13,23 +13,21 @@ import gate.creole.infertagger.drools.RuleProcessor;
 import gate.creole.infertagger.rulemodel.AnnotationDelegate;
 import gate.creole.infertagger.rulemodel.Feature;
 import gate.creole.infertagger.rulemodel.Marker;
-import gate.creole.infertagger.rulemodel.MarkerUtil;
+import gate.creole.infertagger.rulemodel.AnnoMarker;
 import gate.creole.infertagger.rulemodel.RuleModelBuilder;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.util.Files;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.drools.KnowledgeBase;
-import org.drools.definition.type.FactField;
+import org.drools.definition.type.FactType;
 
 /**
  * @author Tobias Neef
@@ -62,10 +60,10 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements
 	}
 
 	private void buildAnnotations(Collection<Object> result) {
-		for (Object object : result) {
-			if (object instanceof MarkerUtil) {
-				logger.info("Marker found " + object);
-				MarkerUtil marker = (MarkerUtil) object;
+		for (Object resultObject : result) {
+			if (resultObject instanceof AnnoMarker) {
+				logger.info("Marker found " + resultObject);
+				AnnoMarker marker = (AnnoMarker) resultObject;
 				FeatureMap fm = Factory.newFeatureMap();
 				fm.putAll(marker.getFeatures());
 				AnnotationSet type = document.getAnnotations(marker.getType());
@@ -73,36 +71,50 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements
 						marker.getTarget().anno.getEndNode(), marker.getType(),
 						fm);
 			} else {
-				Class<? extends Object> c = object.getClass();
+				Class<? extends Object> c = resultObject.getClass();
 				Marker classAnnotations = c.getAnnotation(Marker.class);
 				if (classAnnotations != null) {
-					Package p = c.getPackage();
-					String packagename = p.getName();
-					String classname = c.getSimpleName();
-					org.drools.definition.type.FactType ft = knowledgeBase
-							.getFactType(packagename, classname);
-
-					if (ft!=null) { // type defined in drl
-						AnnotationDelegate anno = (AnnotationDelegate) ft.get(object, "anno");
-						String annoSet = classAnnotations.value();
-						AnnotationSet type = document.getAnnotations(annoSet);
-						FeatureMap fm = Factory.newFeatureMap();
-	
-						for (Field tField : c.getDeclaredFields()) {
-							if (tField.getAnnotation(Feature.class) != null) {
-								String fName = tField.getName();
-								Object fValue = ft.get(object, fName);
-								fm.put(fName, fValue);
-							}
+					FactType markerType = getFactTypeFromKB(c);
+					if (markerType!=null) { // type defined in drl
+						if (markerType.getAsMap(resultObject).containsKey("anno")) {
+							AnnotationDelegate anno = (AnnotationDelegate) markerType
+									.get(resultObject, "anno");
+							String annoSet = classAnnotations.value();
+							AnnotationSet type = document
+									.getAnnotations(annoSet);
+							FeatureMap fm = buildFeatureMapFromFields(
+									resultObject, c, markerType);
+							type.add(anno.anno.getStartNode(),
+									anno.anno.getEndNode(), annoSet, fm);
 						}
-						type.add(anno.anno.getStartNode(),
-								anno.anno.getEndNode(), annoSet,
-								fm);
 					}
 
 				}
 			}
 		}
+	}
+
+	private FeatureMap buildFeatureMapFromFields(Object object,
+			Class<? extends Object> c, FactType ft) {
+		FeatureMap fm = Factory.newFeatureMap();	
+		for (Field tField : c.getDeclaredFields()) {
+			if (tField.getAnnotation(Feature.class) != null) {
+				String fName = tField.getName();
+				Object fValue = ft.get(object, fName);
+				fm.put(fName, fValue);
+			}
+		}
+		return fm;
+	}
+
+	private FactType getFactTypeFromKB(
+			Class<? extends Object> c) {
+		Package p = c.getPackage();
+		String packagename = p.getName();
+		String classname = c.getSimpleName();
+		org.drools.definition.type.FactType ft = knowledgeBase
+				.getFactType(packagename, classname);
+		return ft;
 	}
 
 	@CreoleParameter(comment = "path to Drools changeSet")

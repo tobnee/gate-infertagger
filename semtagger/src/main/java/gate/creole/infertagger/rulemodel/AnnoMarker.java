@@ -4,21 +4,21 @@ import java.util.Collections;
 import java.util.Map;
 
 
-public class MarkerUtil {
+public class AnnoMarker {
 	private final AnnotationDelegate target;
 	private final String type;
 	private final Map<String, String> features;
 
-	public static MarkerUtil mark(AnnotationDelegate target, String type) {
+	public static AnnoMarker mark(AnnotationDelegate target, String type) {
 		Map<String, String> m = Collections.emptyMap();
-		return new MarkerUtil(target, type, m);
+		return new AnnoMarker(target, type, m);
 	}
 	
-	public static MarkerUtil mark(AnnotationDelegate target, String type, Map<String, String> features) {
-		return new MarkerUtil(target, type, features);
+	public static AnnoMarker mark(AnnotationDelegate target, String type, Map<String, String> features) {
+		return new AnnoMarker(target, type, features);
 	}
 	
-	protected MarkerUtil(AnnotationDelegate target, String type, Map<String, String> features) {
+	protected AnnoMarker(AnnotationDelegate target, String type, Map<String, String> features) {
 		this.target = target;
 		this.type = type;
 		this.features = features;
