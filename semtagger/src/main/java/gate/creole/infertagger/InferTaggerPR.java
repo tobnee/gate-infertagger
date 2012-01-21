@@ -64,12 +64,12 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements
 			if (resultObject instanceof AnnoMarker) {
 				logger.info("Marker found " + resultObject);
 				AnnoMarker marker = (AnnoMarker) resultObject;
-				FeatureMap fm = Factory.newFeatureMap();
-				fm.putAll(marker.getFeatures());
+				FeatureMap featureMap = Factory.newFeatureMap();
+				featureMap.putAll(marker.getFeatures());
 				AnnotationSet type = document.getAnnotations(marker.getType());
 				type.add(marker.getTarget().anno.getStartNode(),
 						marker.getTarget().anno.getEndNode(), marker.getType(),
-						fm);
+						featureMap);
 			} else {
 				Class<? extends Object> c = resultObject.getClass();
 				Marker classAnnotations = c.getAnnotation(Marker.class);
