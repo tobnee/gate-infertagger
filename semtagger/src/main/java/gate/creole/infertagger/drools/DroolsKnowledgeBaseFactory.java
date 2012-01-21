@@ -27,8 +27,6 @@ private DroolsKnowledgeBaseFactory() {};
 	 */
 	public static KnowledgeBase initKnowledgeBase(File location, ResourceType type) {
 		final KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-//		Resource res = ResourceFactory.newClassPathResource(location,
-//				RuleProcessor.class);
 		Resource res = ResourceFactory.newFileResource(location);
 		kbuilder.add(res, type);
 
