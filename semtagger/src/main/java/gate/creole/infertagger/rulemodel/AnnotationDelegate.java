@@ -47,6 +47,10 @@ public class AnnotationDelegate {
 		return that==null ? false : this.anno.withinSpanOf(that.anno);
 	}
 	
+	public AnnotationImpl getAnno() {
+		return anno;
+	}
+	
 	@Override
 	public String toString() {
 		return anno.toString();

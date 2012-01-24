@@ -25,6 +25,12 @@ public class RuleModelFactory {
 		return new Word(anno);
 	}
 	
+	public static Space fromSpaceToken(AnnotationImpl anno) {
+		checkTypeOrThrowException(anno, "SpaceToken");
+		checkFeatureOrThrowException(anno, "kind", "space");
+		return new Space(anno);
+	}
+	
 	private static void checkTypeOrThrowException(Annotation anno, String type) {
 		if(!anno.getType().equals(type)) {
 			wrongAnnotation(anno, "required type "+type);

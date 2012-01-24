@@ -1,14 +1,25 @@
 #created on: 22.01.2012
 package gate.creole.infertagger.test
+import gate.creole.infertagger.rulemodel.*;
 
+query before( AnnotationDelegate x, AnnotationDelegate y )
+    Space( startOffset==x.endOffset, endOffset==y.startOffset )
+end
 
+query order( AnnotationDelegate x, 
+			 AnnotationDelegate y, 
+			 AnnotationDelegate z )
+    before(x, y;)
+    before(y, z;)
+end
 
 rule "Your First Rule"
     when
-    	Word( string == "player" )
-    	$name : Word( category == "NNP", orth="upperInitial" )
-    	$surname : Word( category == "NNP", orth="upperInitial" )    	
+    	$player : Word( string == "player" )
+    	$name : Word( category == "NNP", orth == "upperInitial" )
+    	$surname : Word( category == "NNP", orth == "upperInitial" )
+  		
+  		order($player, $name, $surname;)  	
     then
-        insert(AnnoMarker.
+        System.out.println($name+" before "+$surname);
 end
-

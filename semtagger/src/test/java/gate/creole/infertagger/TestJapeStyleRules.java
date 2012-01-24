@@ -22,7 +22,7 @@ public class TestJapeStyleRules {
 		AnnoTestBuilder testBuilder = new AnnoTestBuilder();
 		doc = testBuilder.startSentence().
 						addWord("AC").addWord("Milan").addWord("player").
-						addWord("David").addWord("Beckham").addWord("is").
+						addWord("David", "NNP").addWord("Beckham", "NNP").addWord("is").
 						addWord("english").endSentence().build();
 		InferTaggerPR semTagger = new InferTaggerPR();
 		semTagger.setDocument(doc);

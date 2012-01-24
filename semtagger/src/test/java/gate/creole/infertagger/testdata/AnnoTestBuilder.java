@@ -26,6 +26,11 @@ public class AnnoTestBuilder {
 	}
 
 	public AnnoTestBuilder addWord(String content) {
+		addWord(content, "");
+		return this;
+	}
+
+	public AnnoTestBuilder addWord(String content, String pos) {
 		if (!senStartFlag) {
 			FeatureMap t2Tok = Factory.newFeatureMap();
 			t2Tok.put("kind", "space");
@@ -34,22 +39,22 @@ public class AnnoTestBuilder {
 					"SpaceToken", t2Tok);
 		}
 		senStartFlag = false;
-		
+
 		FeatureMap t1Tok = Factory.newFeatureMap();
 		t1Tok.put("string", content);
 		t1Tok.put("root", content);
-		// t1Tok.put("category", "NN");
-		// t1Tok.put("orth", "upperInitial");
+		t1Tok.put("category", pos);
+		t1Tok.put("orth", "upperInitial");
 		t1Tok.put("kind", "word");
 		annoFac.createAnnotationInSet(annoSet, newId(), new NodeImpl(newId(),
-				posStart()), new NodeImpl(newId(), posEnd(content)), "Token",
+				currPos), new NodeImpl(newId(), posEnd(content)), "Token",
 				t1Tok);
 		return this;
 	}
-	
+
 	public AnnoTestBuilder startSentence() {
 		senStart++;
-		senStartFlag  = true;
+		senStartFlag = true;
 		return this;
 	}
 
@@ -76,7 +81,7 @@ public class AnnoTestBuilder {
 		currPos += word.length();
 		return currPos;
 	}
-	
+
 	private long posEnd(int length) {
 		currPos += length;
 		return currPos;

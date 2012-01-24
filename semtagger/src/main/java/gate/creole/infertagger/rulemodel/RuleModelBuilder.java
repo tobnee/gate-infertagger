@@ -24,6 +24,13 @@ public class RuleModelBuilder {
 					RuleModelFactory.fromWordToken((AnnotationImpl) a) :
 						RuleModelFactory.fromToken((AnnotationImpl) a));
 		}
+		set = annoSet.get("SpaceToken");
+		for(Annotation a : set) {			
+			obs.add(a.getFeatures().get("kind").equals("space") ? 
+					RuleModelFactory.fromSpaceToken((AnnotationImpl) a) :
+						RuleModelFactory.fromToken((AnnotationImpl) a));
+		}
+		
 		set = annoSet.get("Sentence");
 		for(Annotation a : set) {
 			obs.add(RuleModelFactory.fromSentence((AnnotationImpl) a));
