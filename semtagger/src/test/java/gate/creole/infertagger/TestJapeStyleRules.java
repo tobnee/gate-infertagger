@@ -14,7 +14,7 @@ public class TestJapeStyleRules {
 
 	@Test
 	public void testOrder() {
-		
+		System.out.println(doc);
 	}
 	
 	@Before

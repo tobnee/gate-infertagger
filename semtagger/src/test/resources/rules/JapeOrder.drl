@@ -13,15 +13,20 @@ query order( AnnotationDelegate x,
     before(y, z;)
 end
 
+declare Player
+	@Marker("MarkRel")	
+	name : String @Feature
+	surname : String @Feature
+	anno : AnnotationDelegate @From
+	anno2 : AnnotationDelegate @To
+end	
 
-
-rule "Your First Rule"
+rule "Find player"
     when
     	$player : Word( string == "player" )
     	$name : Word( category == "NNP", orth == "upperInitial" )
     	$surname : Word( category == "NNP", orth == "upperInitial" )
-  		
   		order($player, $name, $surname;)  	
     then
-        System.out.println($name+" before "+$surname);
+        insert(new Player($name.getString(), $surname.getString(), $name, $surname));
 end
