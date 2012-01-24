@@ -1,6 +1,7 @@
 package gate.creole.infertagger;
 
 import static org.junit.Assert.assertEquals;
+import gate.Annotation;
 import gate.AnnotationSet;
 import gate.Document;
 import gate.creole.ExecutionException;
@@ -20,10 +21,16 @@ public class TestRuleModelUsageCustTypes {
 		assertEquals("good", annotations.iterator().next().getFeatures().get("feature"));
 	}
 	
-//	@Test
-//	public void testRelationCreation() {
-//		assertEquals(1, doc.getAnnotations("Mark").size());
-//	}
+	@Test
+	public void testMarkerRelCreation() {
+		AnnotationSet annotations = doc.getAnnotations("MarkRel");
+		assertEquals(1, annotations.size());
+		Annotation annotation = annotations.iterator().next();
+		assertEquals("good2", annotation.getFeatures().get("feature"));
+		assertEquals(0L, annotation.getStartNode().getOffset().longValue());
+		assertEquals(12L, annotation.getEndNode().getOffset().longValue());
+	}
+	
 	
 	@Before
 	public void buildKb() throws ExecutionException, ResourceInstantiationException {

@@ -13,6 +13,8 @@ query order( AnnotationDelegate x,
     before(y, z;)
 end
 
+
+
 rule "Your First Rule"
     when
     	$player : Word( string == "player" )

@@ -6,8 +6,8 @@ import java.util.*
 declare MyMarker
 	@Marker("Mark")	
 	feature : String @Feature
-	anno : AnnotationDelegate @Annotation
-end	
+	anno : AnnotationDelegate @From
+end
 
 rule "Marker test"
     dialect "mvel"
@@ -15,4 +15,20 @@ rule "Marker test"
     	$t : Token(string == "super")
     then
     	insert(new MyMarker("good", $t))
+end
+
+declare MyMarkerRel
+	@Marker("MarkRel")	
+	feature : String @Feature
+	anno : AnnotationDelegate @From
+	anno2 : AnnotationDelegate @To
+end		
+
+rule "Marker Relation test"
+    dialect "mvel"
+    when
+    	$t : Token(string == "super")
+    	$t2 : Token(string == "Token")
+    then
+    	insert(new MyMarkerRel("good2", $t2, $t))
 end

@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.drools.KnowledgeBase;
@@ -77,15 +78,25 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements
 					FactType markerType = getFactTypeFromKB(c);
 					if (markerType!=null) { // type defined in drl
 						if (markerType.getAsMap(resultObject).containsKey("anno")) {
+							
+							Map<String, Object> typeMap = markerType.getAsMap(resultObject);
 							AnnotationDelegate anno = (AnnotationDelegate) markerType
 									.get(resultObject, "anno");
+							AnnotationDelegate anno2 = (AnnotationDelegate) 
+								(typeMap.containsKey("anno2") ? typeMap.get("anno2") : null);
+							
 							String annoSet = classAnnotations.value();
 							AnnotationSet type = document
 									.getAnnotations(annoSet);
 							FeatureMap fm = buildFeatureMapFromFields(
 									resultObject, c, markerType);
-							type.add(anno.anno.getStartNode(),
-									anno.anno.getEndNode(), annoSet, fm);
+							if (anno2==null) {
+								type.add(anno.anno.getStartNode(),
+										anno.anno.getEndNode(), annoSet, fm);
+							} else {
+								type.add(anno.anno.getStartNode(),
+										anno2.anno.getEndNode(), annoSet, fm);
+							}
 						}
 					}
 
