@@ -1,0 +1,14 @@
+#created on: 22.01.2012
+package gate.creole.infertagger.test
+
+
+
+rule "Your First Rule"
+    when
+    	Word( string == "player" )
+    	$name : Word( category == "NNP", orth="upperInitial" )
+    	$surname : Word( category == "NNP", orth="upperInitial" )    	
+    then
+        insert(AnnoMarker.
+end
+

@@ -46,7 +46,7 @@ public class TestDataUtil {
 
 		FeatureMap tok = Factory.newFeatureMap();
 		annoLook = (AnnotationImpl) annoFac.createAnnotationInSet(annoSet, 12,
-				new NodeImpl(0, 7l), new NodeImpl(1, 12l), "Lookup", tok);	
+				new NodeImpl(0, 7l), new NodeImpl(1, 12l), "Lookup", tok);
 		document.setDefaultAnnotations(annoSet);
 		return document;
 	}

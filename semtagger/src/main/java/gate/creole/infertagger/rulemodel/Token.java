@@ -18,4 +18,8 @@ public class Token extends AnnotationDelegate {
 	public String getCategory() {
 		return getFeature("category");
 	}
+	
+	public String getOrth() {
+		return getFeature("orth");
+	}
 }
