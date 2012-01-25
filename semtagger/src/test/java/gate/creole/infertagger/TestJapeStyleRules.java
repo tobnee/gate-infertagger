@@ -1,6 +1,9 @@
 package gate.creole.infertagger;
 
+import static org.junit.Assert.assertEquals;
+import gate.AnnotationSet;
 import gate.Document;
+import gate.FeatureMap;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.infertagger.testdata.AnnoTestBuilder;
@@ -14,7 +17,11 @@ public class TestJapeStyleRules {
 
 	@Test
 	public void testOrder() {
-		System.out.println(doc);
+		AnnotationSet annotations = doc.getAnnotations("MarkRel");
+		assertEquals(1, annotations.size());
+		FeatureMap features = annotations.iterator().next().getFeatures();
+		assertEquals("David", features.get("name"));
+		assertEquals("Beckham", features.get("surname"));
 	}
 	
 	@Before
