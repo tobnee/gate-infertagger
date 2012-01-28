@@ -3,6 +3,7 @@ package gate.creole.infertagger;
 import gate.AnnotationSet;
 import gate.Factory;
 import gate.FeatureMap;
+import gate.Node;
 import gate.ProcessingResource;
 import gate.Resource;
 import gate.creole.AbstractLanguageAnalyser;
@@ -34,110 +35,110 @@ import org.drools.definition.type.FactType;
  * @author Tobias Neef
  */
 @CreoleResource(name = "InferTagger", comment = "A inference system for GATE based on JBoss Drools expert")
-public class InferTaggerPR extends AbstractLanguageAnalyser implements
-		ProcessingResource {
-	private static final long serialVersionUID = 208364328022562584L;
+public class InferTaggerPR extends AbstractLanguageAnalyser implements ProcessingResource {
+  private static final long serialVersionUID = 208364328022562584L;
 
-	private URL ruleSet;
-	private KnowledgeBase knowledgeBase;
-	private Logger logger = Logger.getLogger(getClass());
+  private URL ruleSet;
+  private KnowledgeBase knowledgeBase;
+  private Logger logger = Logger.getLogger(getClass());
 
-	@Override
-	public Resource init() throws ResourceInstantiationException {
-		File ruleSetFile = Files.fileFromURL(ruleSet);
-		knowledgeBase = DroolsKnowledgeBaseFactory
-				.initKnowledgeBase(ruleSetFile);
-		return this;
-	}
+  @Override
+  public Resource init() throws ResourceInstantiationException {
+    File ruleSetFile = Files.fileFromURL(ruleSet);
+    knowledgeBase = DroolsKnowledgeBaseFactory.initKnowledgeBase(ruleSetFile);
+    return this;
+  }
 
-	@Override
-	public void execute() throws ExecutionException {
-		RuleModelBuilder rmb = new RuleModelBuilder(document.getAnnotations());
-		List<Object> rulemodel = rmb.build();
-		RuleProcessor rp = new RuleProcessor(knowledgeBase);
-		Collection<Object> result = rp.assertAnnotations(rulemodel);
-		buildAnnotations(result);
-		logger.info(result);
-	}
+  @Override
+  public void execute() throws ExecutionException {
+    RuleModelBuilder rmb = new RuleModelBuilder(document.getAnnotations());
+    List<Object> rulemodel = rmb.build();
+    RuleProcessor rp = new RuleProcessor(knowledgeBase);
+    Collection<Object> result = rp.assertAnnotations(rulemodel);
+    buildAnnotations(result);
+    logger.info(result);
+  }
 
-	void buildAnnotations(Collection<? extends Object> result) {
-		for (Object resultObject : result) {
-			if (resultObject instanceof AnnoMarker) {
-				logger.info("Marker found " + resultObject);
-				AnnoMarker marker = (AnnoMarker) resultObject;
-				addAnnoMarker(marker);
-			} else {
-				Class<? extends Object> c = resultObject.getClass();
-				Marker classAnnotations = c.getAnnotation(Marker.class);
-				if (classAnnotations != null) {
-					FactType markerType = getFactTypeFromKB(c);
-					if (markerType!=null) { // type defined in drl
-						if (markerType.getAsMap(resultObject).containsKey("anno")) {
-							
-							Map<String, Object> typeMap = markerType.getAsMap(resultObject);
-							AnnotationDelegate anno = (AnnotationDelegate) markerType
-									.get(resultObject, "anno");
-							AnnotationDelegate anno2 = (AnnotationDelegate) 
-								(typeMap.containsKey("anno2") ? typeMap.get("anno2") : null);
-							
-							String annoSet = classAnnotations.value();
-							AnnotationSet type = document
-									.getAnnotations(annoSet);
-							FeatureMap fm = buildFeatureMapFromFields(
-									resultObject, c, markerType);
-							if (anno2==null) {
-								type.add(anno.anno.getStartNode(),
-										anno.anno.getEndNode(), annoSet, fm);
-							} else {
-								type.add(anno.anno.getStartNode(),
-										anno2.anno.getEndNode(), annoSet, fm);
-							}
-						}
-					}
+  void buildAnnotations(Collection<? extends Object> result) {
+    for (Object resultObject : result) {
+      if (resultObject instanceof AnnoMarker) {
+        logger.info("Marker found " + resultObject);
+        AnnoMarker marker = (AnnoMarker) resultObject;
+        addAnnoMarker(marker);
+      } else {
+        Class<? extends Object> resultObjClass = resultObject.getClass();
+        Marker resultObjAnnotations = resultObjClass.getAnnotation(Marker.class);
+        if (resultObjAnnotations != null) {
+          addCustomAnnoMarker(resultObject, resultObjClass, resultObjAnnotations);
+        }
+      }
+    }
+  }
 
-				}
-			}
-		}
-	}
+  private void addCustomAnnoMarker(Object resultObject, Class<? extends Object> resultObjClass,
+      Marker resultObjAnnotations) {
+    // get meta object to access fields without reflection
+    FactType resultDroolsMetaObj = getFactTypeFromKB(resultObjClass);
+    if (resultDroolsMetaObj != null) { // type defined in drl
+      Map<String, Object> resultFieldToValue = resultDroolsMetaObj.getAsMap(resultObject);
+      if (resultFieldToValue.containsKey("anno")) {
+        // get the obligatory anno which is use in the marker
+        AnnotationDelegate anno = (AnnotationDelegate) resultDroolsMetaObj.get(
+            resultObject, "anno");
+        // get the optional anno which is used for marking relations
+        AnnotationDelegate anno2 = (AnnotationDelegate) (resultFieldToValue
+            .containsKey("anno2") ? resultFieldToValue.get("anno2") : null);
 
-	private void addAnnoMarker(AnnoMarker marker) {
-		FeatureMap featureMap = Factory.newFeatureMap();
-		featureMap.putAll(marker.getFeatures());
-		AnnotationSet type = document.getAnnotations();
-		type.add(marker.getTarget().anno.getStartNode(),
-				marker.getTarget().anno.getEndNode(), marker.getType(),
-				featureMap);
-	}
+        // build annotation
+        String annoSet = resultObjAnnotations.value();
+        AnnotationSet type = document.getAnnotations(annoSet);
+        FeatureMap fm = buildFeatureMapFromFields(resultObject, resultObjClass, resultDroolsMetaObj);
+        Node startNode = anno.anno.getStartNode();
+        if (anno2 == null) {
+          type.add(startNode, anno.anno.getEndNode(), annoSet, fm);
+        } else {
+          type.add(startNode, anno2.anno.getEndNode(), annoSet, fm);
+        }
+      }
+    }
+  }
 
-	private FeatureMap buildFeatureMapFromFields(Object object,
-			Class<? extends Object> c, FactType ft) {
-		FeatureMap fm = Factory.newFeatureMap();	
-		for (Field tField : c.getDeclaredFields()) {
-			if (tField.getAnnotation(Feature.class) != null) {
-				String fName = tField.getName();
-				Object fValue = ft.get(object, fName);
-				fm.put(fName, fValue);
-			}
-		}
-		return fm;
-	}
+  private void addAnnoMarker(AnnoMarker marker) {
+    FeatureMap featureMap = Factory.newFeatureMap();
+    featureMap.putAll(marker.getFeatures());
+    AnnotationSet type = document.getAnnotations();
+    type.add(marker.getTarget().anno.getStartNode(),
+        marker.getTarget().anno.getEndNode(), marker.getType(), featureMap);
+  }
 
-	private FactType getFactTypeFromKB(
-			Class<? extends Object> c) {
-		Package p = c.getPackage();
-		String packagename = p.getName();
-		String classname = c.getSimpleName();
-		org.drools.definition.type.FactType ft = knowledgeBase
-				.getFactType(packagename, classname);
-		return ft;
-	}
+  private FeatureMap buildFeatureMapFromFields(Object object, Class<? extends Object> c,
+      FactType ft) {
+    FeatureMap fm = Factory.newFeatureMap();
+    for (Field tField : c.getDeclaredFields()) {
+      if (tField.getAnnotation(Feature.class) != null) {
+        String fName = tField.getName();
+        Object fValue = ft.get(object, fName);
+        fm.put(fName, fValue);
+      }
+    }
+    return fm;
+  }
 
-	@CreoleParameter(comment = "path to Drools changeSet")
-	public void setRuleSet(URL ruleSet) {
-		this.ruleSet = ruleSet;
-	}
+  private FactType getFactTypeFromKB(Class<? extends Object> c) {
+    Package p = c.getPackage();
+    String packagename = p.getName();
+    String classname = c.getSimpleName();
+    org.drools.definition.type.FactType ft = knowledgeBase.getFactType(packagename,
+        classname);
+    return ft;
+  }
 
-	public URL getRuleSet() {
-		return ruleSet;
-	}
+  @CreoleParameter(comment = "path to Drools changeSet")
+  public void setRuleSet(URL ruleSet) {
+    this.ruleSet = ruleSet;
+  }
+
+  public URL getRuleSet() {
+    return ruleSet;
+  }
 }
