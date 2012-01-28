@@ -1,5 +1,6 @@
 package gate.creole.infertagger.testdata;
 
+import gate.Annotation;
 import gate.AnnotationSet;
 import gate.Document;
 import gate.Factory;
@@ -11,6 +12,15 @@ import gate.annotation.NodeImpl;
 import gate.corpora.DocumentImpl;
 
 public class TestDataUtil {
+	
+//	public static Annotation getWordAnno() {
+//		DocumentImpl document = new DocumentImpl();
+//		DefaultAnnotationFactory annoFac = new DefaultAnnotationFactory();;
+//		AnnotationSet annoSet = new AnnotationSetImpl(document);
+//		annoTok = (AnnotationImpl) annoFac.createAnnotationInSet(annoSet, 10,
+//				new NodeImpl(0, 0l), new NodeImpl(1, 6l), "Token", t1Tok);
+//	}
+	
 	public static Document getTestCourpus() {
 		DefaultAnnotationFactory annoFac;
 		AnnotationSet annoSet;

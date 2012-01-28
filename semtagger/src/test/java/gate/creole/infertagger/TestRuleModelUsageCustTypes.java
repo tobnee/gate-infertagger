@@ -31,7 +31,6 @@ public class TestRuleModelUsageCustTypes {
 		assertEquals(12L, annotation.getEndNode().getOffset().longValue());
 	}
 	
-	
 	@Before
 	public void buildKb() throws ExecutionException, ResourceInstantiationException {
 		InferTaggerPR semTagger = new InferTaggerPR();

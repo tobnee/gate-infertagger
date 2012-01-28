@@ -60,17 +60,12 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements
 		logger.info(result);
 	}
 
-	private void buildAnnotations(Collection<Object> result) {
+	void buildAnnotations(Collection<? extends Object> result) {
 		for (Object resultObject : result) {
 			if (resultObject instanceof AnnoMarker) {
 				logger.info("Marker found " + resultObject);
 				AnnoMarker marker = (AnnoMarker) resultObject;
-				FeatureMap featureMap = Factory.newFeatureMap();
-				featureMap.putAll(marker.getFeatures());
-				AnnotationSet type = document.getAnnotations(marker.getType());
-				type.add(marker.getTarget().anno.getStartNode(),
-						marker.getTarget().anno.getEndNode(), marker.getType(),
-						featureMap);
+				addAnnoMarker(marker);
 			} else {
 				Class<? extends Object> c = resultObject.getClass();
 				Marker classAnnotations = c.getAnnotation(Marker.class);
@@ -103,6 +98,15 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements
 				}
 			}
 		}
+	}
+
+	private void addAnnoMarker(AnnoMarker marker) {
+		FeatureMap featureMap = Factory.newFeatureMap();
+		featureMap.putAll(marker.getFeatures());
+		AnnotationSet type = document.getAnnotations();
+		type.add(marker.getTarget().anno.getStartNode(),
+				marker.getTarget().anno.getEndNode(), marker.getType(),
+				featureMap);
 	}
 
 	private FeatureMap buildFeatureMapFromFields(Object object,

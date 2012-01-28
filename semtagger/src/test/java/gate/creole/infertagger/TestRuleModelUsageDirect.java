@@ -17,7 +17,8 @@ public class TestRuleModelUsageDirect {
 
 	@Test
 	public void testMarkerCreation() {
-		AnnotationSet annotations = doc.getAnnotations("Mark");
+		AnnotationSet annotations = doc.getAnnotations().get("Mark");
+		System.out.println(doc);
 		assertEquals(1, annotations.size());
 		assertEquals("good", annotations.iterator().next().getFeatures().get("feature"));
 	}
