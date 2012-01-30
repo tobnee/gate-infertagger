@@ -11,11 +11,14 @@ import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.infertagger.drools.DroolsKnowledgeBaseFactory;
 import gate.creole.infertagger.drools.RuleProcessor;
+import gate.creole.infertagger.rulemodel.AnnoMarker;
 import gate.creole.infertagger.rulemodel.AnnotationDelegate;
 import gate.creole.infertagger.rulemodel.Feature;
+import gate.creole.infertagger.rulemodel.From;
 import gate.creole.infertagger.rulemodel.Marker;
-import gate.creole.infertagger.rulemodel.AnnoMarker;
 import gate.creole.infertagger.rulemodel.RuleModelBuilder;
+import gate.creole.infertagger.rulemodel.To;
+import gate.creole.infertagger.util.LruCache;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.util.Files;
@@ -23,6 +26,7 @@ import gate.util.Files;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -75,32 +79,68 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     }
   }
 
-  private void addCustomAnnoMarker(Object resultObject, Class<? extends Object> resultObjClass,
-      Marker resultObjAnnotations) {
+  private void addCustomAnnoMarker(Object resultObject,
+      Class<? extends Object> resultObjClass, Marker resultObjAnnotations) {
     // get meta object to access fields without reflection
     FactType resultDroolsMetaObj = getFactTypeFromKB(resultObjClass);
     if (resultDroolsMetaObj != null) { // type defined in drl
-      Map<String, Object> resultFieldToValue = resultDroolsMetaObj.getAsMap(resultObject);
-      if (resultFieldToValue.containsKey("anno")) {
-        // get the obligatory anno which is use in the marker
-        AnnotationDelegate anno = (AnnotationDelegate) resultDroolsMetaObj.get(
-            resultObject, "anno");
-        // get the optional anno which is used for marking relations
-        AnnotationDelegate anno2 = (AnnotationDelegate) (resultFieldToValue
-            .containsKey("anno2") ? resultFieldToValue.get("anno2") : null);
-
-        // build annotation
+      MarkerClassInfo markerClassInfo = extractMarkerClassInfo(resultObject);
+      if (markerClassInfo.from != null) {
         String annoSet = resultObjAnnotations.value();
-        AnnotationSet type = document.getAnnotations(annoSet);
-        FeatureMap fm = buildFeatureMapFromFields(resultObject, resultObjClass, resultDroolsMetaObj);
-        Node startNode = anno.anno.getStartNode();
-        if (anno2 == null) {
-          type.add(startNode, anno.anno.getEndNode(), annoSet, fm);
-        } else {
-          type.add(startNode, anno2.anno.getEndNode(), annoSet, fm);
-        }
+        addAnnotatons(resultObject, resultDroolsMetaObj, markerClassInfo, annoSet);
+      } else {
+        logger.warn("Custom marker class " + resultObjClass
+            + " defined without @From annotation");
       }
     }
+  }
+
+  private void addAnnotatons(Object resultObject, FactType resultDroolsMetaObj,
+      MarkerClassInfo markerClassInfo, String annoSet) {
+    Map<String, Object> resultFieldToValue = resultDroolsMetaObj
+        .getAsMap(resultObject);
+    if (resultFieldToValue.containsKey(markerClassInfo.from)) {
+      // get the obligatory anno which is use in the marker
+      AnnotationDelegate anno = (AnnotationDelegate) resultDroolsMetaObj.get(
+          resultObject, markerClassInfo.from);
+      // get the optional anno which is used for marking relations
+      AnnotationDelegate anno2 = (AnnotationDelegate) (markerClassInfo.isRelation() ? resultFieldToValue
+          .get(markerClassInfo.to) : null);
+      // build annotation
+
+      AnnotationSet type = document.getAnnotations(annoSet);
+      FeatureMap fm = buildFeatureMapFromFields(markerClassInfo, resultFieldToValue);
+      Node startNode = anno.anno.getStartNode();
+      if (anno2 == null) {
+        type.add(startNode, anno.anno.getEndNode(), annoSet, fm);
+      } else {
+        type.add(startNode, anno2.anno.getEndNode(), annoSet, fm);
+      }
+    }
+  }
+
+  private FeatureMap buildFeatureMapFromFields(MarkerClassInfo markerClassInfo,
+      Map<String, Object> resultFieldToValue) {
+    FeatureMap fm = Factory.newFeatureMap();
+    for(String featureName : markerClassInfo.features) {
+      fm.put(featureName, resultFieldToValue.get(featureName));
+    }
+    return fm;
+  }
+
+  private MarkerClassInfo extractMarkerClassInfo(Object resultObject) {
+    MarkerClassInfo markerClassInfo = new MarkerClassInfo();
+    Field[] fields = resultObject.getClass().getDeclaredFields();
+    for (Field field : fields) {
+      if (field.isAnnotationPresent(Feature.class)) {
+        markerClassInfo.features.add(field.getName());
+      } else if (field.isAnnotationPresent(From.class)) {
+        markerClassInfo.from = field.getName();
+      } else if (field.isAnnotationPresent(To.class)) {
+        markerClassInfo.to = field.getName();
+      }
+    }
+    return markerClassInfo;
   }
 
   private void addAnnoMarker(AnnoMarker marker) {
@@ -109,19 +149,6 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     AnnotationSet type = document.getAnnotations();
     type.add(marker.getTarget().anno.getStartNode(),
         marker.getTarget().anno.getEndNode(), marker.getType(), featureMap);
-  }
-
-  private FeatureMap buildFeatureMapFromFields(Object object, Class<? extends Object> c,
-      FactType ft) {
-    FeatureMap fm = Factory.newFeatureMap();
-    for (Field tField : c.getDeclaredFields()) {
-      if (tField.getAnnotation(Feature.class) != null) {
-        String fName = tField.getName();
-        Object fValue = ft.get(object, fName);
-        fm.put(fName, fValue);
-      }
-    }
-    return fm;
   }
 
   private FactType getFactTypeFromKB(Class<? extends Object> c) {
@@ -140,5 +167,15 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
 
   public URL getRuleSet() {
     return ruleSet;
+  }
+
+  private static class MarkerClassInfo {
+    String to;
+    String from;
+    final List<String> features = new ArrayList<String>();
+
+    boolean isRelation() {
+      return !(to == null);
+    }
   }
 }
