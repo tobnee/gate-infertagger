@@ -58,7 +58,7 @@ public class Annotation {
 	
 	@Override
 	public int hashCode() {
-		return super.hashCode();
+		return anno.hashCode();
 	}
 	
 	@Override
