@@ -36,6 +36,7 @@ import org.drools.KnowledgeBase;
 import org.drools.definition.type.FactType;
 
 /**
+ * A inference system for GATE based on JBoss Drools expert
  * @author Tobias Neef
  */
 @CreoleResource(name = "InferTagger", comment = "A inference system for GATE based on JBoss Drools expert")
@@ -46,9 +47,12 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
   private KnowledgeBase knowledgeBase;
   private Logger logger = Logger.getLogger(getClass());
 
-  private final LruCache<Class<? extends Object>,  MarkerClassInfo> makerClassInfoCache = 
-    new LruCache<Class<? extends Object>,  MarkerClassInfo>(100);
+  private final LruCache<Class<? extends Object>, MarkerClassInfo> makerClassInfoCache = new LruCache<Class<? extends Object>, MarkerClassInfo>(
+      100);
 
+  /**
+   * initializes Drools {@link KnowledgeBase}
+   */
   @Override
   public Resource init() throws ResourceInstantiationException {
     File ruleSetFile = Files.fileFromURL(ruleSet);
@@ -56,6 +60,10 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     return this;
   }
 
+  /**
+   * runs all rules in knowledge base and adds the results to the gate
+   * annotation set
+   */
   @Override
   public void execute() throws ExecutionException {
     RuleModelBuilder rmb = new RuleModelBuilder(document.getAnnotations());
@@ -82,36 +90,54 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     }
   }
 
+  /**
+   * adds a annotation to the annotation set based on a custom drools
+   * declaration defined in a DRL file
+   */
   private void addCustomAnnoMarker(Object resultObject,
       Class<? extends Object> resultObjClass, Marker resultObjAnnotations) {
     // get meta object to access fields without reflection
-    FactType resultDroolsMetaObj = getFactTypeFromKB(resultObjClass);
-    if (resultDroolsMetaObj != null) { // type defined in drl
-      MarkerClassInfo markerClassInfo = getOrBuildMarkerClass(resultObject,
-          resultObjClass);
-      if (markerClassInfo.from != null) {
-        String annoSet = resultObjAnnotations.value();
-        addAnnotatons(resultObject, resultDroolsMetaObj, markerClassInfo, annoSet);
-      } else {
-        logger.warn("Custom marker class " + resultObjClass
-            + " defined without @From annotation");
-      }
+    MarkerClassInfo markerClassInfo = getOrBuildMarkerClassInfoObj(resultObject,
+        resultObjClass);
+    if (markerClassInfo.from != null) {
+      String annoSet = resultObjAnnotations.value();
+      addAnnotatons(resultObject, markerClassInfo.metaObj, markerClassInfo, annoSet);
+    } else {
+      logger.warn("Custom marker class " + resultObjClass
+          + " defined without @From annotation");
     }
   }
 
-  private MarkerClassInfo getOrBuildMarkerClass(Object resultObject, Class<? extends Object> resultObjClass) {
-    if(!makerClassInfoCache.containsKey(resultObjClass)) 
-      makerClassInfoCache.put(resultObjClass, extractMarkerClassInfo(resultObject));
+  /**
+   * in order to avoid reflection on the custom drools declaration the method
+   * builds a {@link MarkerClassInfo} which contains all reflection intensive
+   * meta information in an LRU cache
+   * 
+   * @param resultObject
+   * @param resultObjClass
+   * @return
+   */
+  private MarkerClassInfo getOrBuildMarkerClassInfoObj(Object resultObject,
+      Class<? extends Object> resultObjClass) {
+    if (!makerClassInfoCache.containsKey(resultObjClass)) {
+      MarkerClassInfo markerClassInfo = extractMarkerClassInfo(resultObject);
+      markerClassInfo.metaObj = getFactTypeFromKB(resultObjClass);
+      makerClassInfoCache.put(resultObjClass, markerClassInfo);
+    }
+
     return makerClassInfoCache.get(resultObjClass);
   }
 
+  /**
+   * add annotation to set based on a drools fact
+   */
   private void addAnnotatons(Object resultObject, FactType resultDroolsMetaObj,
       MarkerClassInfo markerClassInfo, String annoSet) {
     Map<String, Object> resultFieldToValue = resultDroolsMetaObj.getAsMap(resultObject);
     if (resultFieldToValue.containsKey(markerClassInfo.from)) {
       // get the obligatory anno which is use in the marker
-      Annotation anno = (Annotation) resultDroolsMetaObj.get(
-          resultObject, markerClassInfo.from);
+      Annotation anno = (Annotation) resultDroolsMetaObj.get(resultObject,
+          markerClassInfo.from);
       // get the optional anno which is used for marking relations
       Annotation anno2 = (Annotation) (markerClassInfo.isRelation() ? resultFieldToValue
           .get(markerClassInfo.to) : null);
@@ -179,6 +205,7 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
   }
 
   private static class MarkerClassInfo {
+    public FactType metaObj;
     String to;
     String from;
     final List<String> features = new ArrayList<String>();
