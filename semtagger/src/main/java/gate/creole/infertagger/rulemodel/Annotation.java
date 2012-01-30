@@ -64,7 +64,7 @@ public class Annotation {
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null) return false;
-		if(obj instanceof Annotation) {
+		if(this.getClass().isInstance(obj)) {
 			return super.equals(((Annotation) obj).anno);
 		} 
 		return false;

@@ -1,4 +1,3 @@
-#created on: 22.01.2012
 package gate.creole.infertagger.test
 import gate.creole.infertagger.rules.*;
 import gate.creole.infertagger.rulemodel.*;
@@ -7,8 +6,8 @@ declare Player
 	@Marker("MarkRel")	
 	name : String @Feature
 	surname : String @Feature
-	anno : Annotation @From
-	anno2 : Annotation @To
+	startRel : Annotation @From
+	endRel : Annotation @To
 end	
 
 rule "Find player"

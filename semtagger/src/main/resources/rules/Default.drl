@@ -1,11 +1,12 @@
-#created on: 22.01.2012
 package gate.creole.infertagger.rules
 import gate.creole.infertagger.rulemodel.*;
 
+# is x before y in the document
 query before( Annotation x, Annotation y )
     Space( startOffset==x.endOffset, endOffset==y.startOffset )
 end
 
+# do the annotations have the given order
 query order( Annotation x, 
 			 Annotation y, 
 			 Annotation z )
