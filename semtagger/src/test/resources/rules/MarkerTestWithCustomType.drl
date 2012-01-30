@@ -6,7 +6,7 @@ import java.util.*
 declare MyMarker
 	@Marker("Mark")	
 	feature : String @Feature
-	anno : AnnotationDelegate @From
+	anno : Annotation @From
 end
 
 rule "Marker test"
@@ -20,8 +20,8 @@ end
 declare MyMarkerRel
 	@Marker("MarkRel")	
 	feature : String @Feature
-	anno : AnnotationDelegate @From
-	anno2 : AnnotationDelegate @To
+	anno : Annotation @From
+	anno2 : Annotation @To
 end		
 
 rule "Marker Relation test"

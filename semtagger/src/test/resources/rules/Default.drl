@@ -2,13 +2,13 @@
 package gate.creole.infertagger.rules
 import gate.creole.infertagger.rulemodel.*;
 
-query before( AnnotationDelegate x, AnnotationDelegate y )
+query before( Annotation x, Annotation y )
     Space( startOffset==x.endOffset, endOffset==y.startOffset )
 end
 
-query order( AnnotationDelegate x, 
-			 AnnotationDelegate y, 
-			 AnnotationDelegate z )
+query order( Annotation x, 
+			 Annotation y, 
+			 Annotation z )
     before(x, y;)
     before(y, z;)
 end

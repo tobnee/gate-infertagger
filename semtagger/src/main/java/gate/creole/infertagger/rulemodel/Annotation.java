@@ -2,10 +2,10 @@ package gate.creole.infertagger.rulemodel;
 
 import gate.annotation.AnnotationImpl;
 
-public class AnnotationDelegate {
+public class Annotation {
 	public final AnnotationImpl anno;
 
-	public AnnotationDelegate(AnnotationImpl anno) {
+	public Annotation(AnnotationImpl anno) {
 		this.anno = anno;
 	}
 
@@ -26,24 +26,24 @@ public class AnnotationDelegate {
 		return getFeatureOrDefault(string, "");
 	}
 	
-	public boolean overlaps(AnnotationDelegate that) {
+	public boolean overlaps(Annotation that) {
 		return that==null ? false : this.anno.overlaps(that.anno);
 	}
 
-	public boolean after(AnnotationDelegate that) {
+	public boolean after(Annotation that) {
 		return that==null ? false : 
 			this.anno.getEndNode().getOffset()>that.anno.getStartNode().getOffset();
 	}
 
-	public boolean before(AnnotationDelegate that) {
+	public boolean before(Annotation that) {
 		return !after(that);
 	}
 	
-	public boolean contains(AnnotationDelegate that) {
+	public boolean contains(Annotation that) {
 		return that==null ? false : that.anno.withinSpanOf(anno);
 	}
 	
-	public boolean within(AnnotationDelegate that) {
+	public boolean within(Annotation that) {
 		return that==null ? false : this.anno.withinSpanOf(that.anno);
 	}
 	
@@ -64,8 +64,8 @@ public class AnnotationDelegate {
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null) return false;
-		if(obj instanceof AnnotationDelegate) {
-			return super.equals(((AnnotationDelegate) obj).anno);
+		if(obj instanceof Annotation) {
+			return super.equals(((Annotation) obj).anno);
 		} 
 		return false;
 	}

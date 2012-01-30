@@ -7,8 +7,8 @@ declare Player
 	@Marker("MarkRel")	
 	name : String @Feature
 	surname : String @Feature
-	anno : AnnotationDelegate @From
-	anno2 : AnnotationDelegate @To
+	anno : Annotation @From
+	anno2 : Annotation @To
 end	
 
 rule "Find player"

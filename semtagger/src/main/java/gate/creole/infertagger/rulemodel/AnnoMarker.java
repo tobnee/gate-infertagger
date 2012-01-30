@@ -5,26 +5,26 @@ import java.util.Map;
 
 
 public class AnnoMarker {
-	private final AnnotationDelegate target;
+	private final Annotation target;
 	private final String type;
 	private final Map<String, String> features;
 
-	public static AnnoMarker mark(AnnotationDelegate target, String type) {
+	public static AnnoMarker mark(Annotation target, String type) {
 		Map<String, String> m = Collections.emptyMap();
 		return new AnnoMarker(target, type, m);
 	}
 	
-	public static AnnoMarker mark(AnnotationDelegate target, String type, Map<String, String> features) {
+	public static AnnoMarker mark(Annotation target, String type, Map<String, String> features) {
 		return new AnnoMarker(target, type, features);
 	}
 	
-	protected AnnoMarker(AnnotationDelegate target, String type, Map<String, String> features) {
+	protected AnnoMarker(Annotation target, String type, Map<String, String> features) {
 		this.target = target;
 		this.type = type;
 		this.features = features;
 	}
 	
-	public AnnotationDelegate getTarget() {
+	public Annotation getTarget() {
 		return target;
 	}
 	

@@ -12,7 +12,7 @@ import gate.creole.ResourceInstantiationException;
 import gate.creole.infertagger.drools.DroolsKnowledgeBaseFactory;
 import gate.creole.infertagger.drools.RuleProcessor;
 import gate.creole.infertagger.rulemodel.AnnoMarker;
-import gate.creole.infertagger.rulemodel.AnnotationDelegate;
+import gate.creole.infertagger.rulemodel.Annotation;
 import gate.creole.infertagger.rulemodel.Feature;
 import gate.creole.infertagger.rulemodel.From;
 import gate.creole.infertagger.rulemodel.Marker;
@@ -45,6 +45,9 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
   private URL ruleSet;
   private KnowledgeBase knowledgeBase;
   private Logger logger = Logger.getLogger(getClass());
+
+  private final LruCache<Class<? extends Object>,  MarkerClassInfo> makerClassInfoCache = 
+    new LruCache<Class<? extends Object>,  MarkerClassInfo>(100);
 
   @Override
   public Resource init() throws ResourceInstantiationException {
@@ -84,7 +87,8 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     // get meta object to access fields without reflection
     FactType resultDroolsMetaObj = getFactTypeFromKB(resultObjClass);
     if (resultDroolsMetaObj != null) { // type defined in drl
-      MarkerClassInfo markerClassInfo = extractMarkerClassInfo(resultObject);
+      MarkerClassInfo markerClassInfo = getOrBuildMarkerClass(resultObject,
+          resultObjClass);
       if (markerClassInfo.from != null) {
         String annoSet = resultObjAnnotations.value();
         addAnnotatons(resultObject, resultDroolsMetaObj, markerClassInfo, annoSet);
@@ -95,16 +99,21 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
     }
   }
 
+  private MarkerClassInfo getOrBuildMarkerClass(Object resultObject, Class<? extends Object> resultObjClass) {
+    if(!makerClassInfoCache.containsKey(resultObjClass)) 
+      makerClassInfoCache.put(resultObjClass, extractMarkerClassInfo(resultObject));
+    return makerClassInfoCache.get(resultObjClass);
+  }
+
   private void addAnnotatons(Object resultObject, FactType resultDroolsMetaObj,
       MarkerClassInfo markerClassInfo, String annoSet) {
-    Map<String, Object> resultFieldToValue = resultDroolsMetaObj
-        .getAsMap(resultObject);
+    Map<String, Object> resultFieldToValue = resultDroolsMetaObj.getAsMap(resultObject);
     if (resultFieldToValue.containsKey(markerClassInfo.from)) {
       // get the obligatory anno which is use in the marker
-      AnnotationDelegate anno = (AnnotationDelegate) resultDroolsMetaObj.get(
+      Annotation anno = (Annotation) resultDroolsMetaObj.get(
           resultObject, markerClassInfo.from);
       // get the optional anno which is used for marking relations
-      AnnotationDelegate anno2 = (AnnotationDelegate) (markerClassInfo.isRelation() ? resultFieldToValue
+      Annotation anno2 = (Annotation) (markerClassInfo.isRelation() ? resultFieldToValue
           .get(markerClassInfo.to) : null);
       // build annotation
 
@@ -122,7 +131,7 @@ public class InferTaggerPR extends AbstractLanguageAnalyser implements Processin
   private FeatureMap buildFeatureMapFromFields(MarkerClassInfo markerClassInfo,
       Map<String, Object> resultFieldToValue) {
     FeatureMap fm = Factory.newFeatureMap();
-    for(String featureName : markerClassInfo.features) {
+    for (String featureName : markerClassInfo.features) {
       fm.put(featureName, resultFieldToValue.get(featureName));
     }
     return fm;

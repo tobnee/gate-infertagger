@@ -2,7 +2,7 @@ package gate.creole.infertagger.rulemodel;
 
 import gate.annotation.AnnotationImpl;
 
-public class Token extends AnnotationDelegate {
+public class Token extends Annotation {
 	Token(AnnotationImpl anno) {
 		super(anno);
 	}
