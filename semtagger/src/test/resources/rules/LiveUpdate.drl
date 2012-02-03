@@ -1,0 +1,27 @@
+package gate.creole.infertagger.test
+import gate.creole.infertagger.rules.*;
+import gate.creole.infertagger.rulemodel.*;
+
+declare HouseLookup
+	@Marker("Marker")	
+	startRel : Annotation @From
+	hasHouse : String @Feature
+end	
+
+rule "Find positive statement about a house"
+    when
+    	$houseWord : Word( string == "house" )
+	then
+        insert(new HouseLookup($houseWord, "true"));
+         //System.out.println("Newhouse");
+end
+
+rule "Find negative statement about a house"
+    when
+    	$no : Word( string == "no" )
+    	$houseLookup : HouseLookup( $houseAnno : startRel )
+    	before($no, $houseAnno;) 
+	then
+        modify($houseLookup) { setHasHouse( "false" ) };
+        System.out.println("ABC: "+$houseLookup);
+end
